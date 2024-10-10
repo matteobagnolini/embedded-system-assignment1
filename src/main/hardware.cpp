@@ -1,4 +1,5 @@
 #include <math.h>
+#include <EnableInterrupt.h>
 #include "hardware.h"
 
 int ledStates[4] = {LOW, LOW, LOW, LOW};
@@ -20,6 +21,7 @@ void setupHardware() {
   Serial.begin(9600);   // for logging purpose
 
   // Interrupt should be setupped here
+  enableInterrupt(BUTTON_PIN1, changeLedState, CHANGE);
 
 }
 
@@ -45,6 +47,26 @@ static String getBinaryNumber() {
   Serial.println(bin);
 }
 
-static void changeLedState() {
-  
+// This solution reuse too much code. We should think about
+// a better implementation (Note: we cant use args in this methods)
+static void changeLed1State() {
+    ledState1 = ledState1 == HIGH ? LOW : HIGH;
+    digitalWrite(PIN_LED, ledState1);
+
 }
+
+static void changeLed2State() {
+  ledState2 = ledState2 == HIGH ? LOW : HIGH;
+  digitalWrite(PIN_LED, ledState2);
+}
+
+static void changeLed3State() {
+  ledState3 = ledState3 == HIGH ? LOW : HIGH;
+  digitalWrite(PIN_LED, ledState3);
+}
+
+static void changeLed4State() {
+  ledState4 = ledState4 == HIGH ? LOW : HIGH;
+  digitalWrite(PIN_LED, ledState4);
+}
+
