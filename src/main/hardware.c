@@ -39,12 +39,15 @@ int getNumberFromBoard() {
   }
 }
 
-static String getBinaryNumber() {
-  String bin = "";
-  for (int i = 0; i < GAME_PINS; i++) {
-    bin += ledStates[i] == HIGH ? 1 : 0;
-  }
-  Serial.println(bin);
+static void getBinaryNumber(char* bin) {
+    for (int i = 0; i < GAME_PINS; i++) {
+        bin[i] =
+            ledStates[i] == HIGH
+                ? '1'
+                : '0';  // Impostare '1' o '0' a seconda dello stato del LED
+    }
+    bin[GAME_PINS] = '\0';  // Aggiungere il carattere di terminazione null
+    Serial.println(bin);    // Stampa della stringa binaria per il logging
 }
 
 // This solution reuse too much code. We should think about

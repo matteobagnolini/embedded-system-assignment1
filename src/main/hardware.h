@@ -10,6 +10,12 @@
 #define BUTTON_PIN3 12
 #define BUTTON_PIN4 13
 
+enum difficulty { EASY, MEDIUM, HARD, ABSURD };
+
 void setupHardware();
-void displayMessage(long millis);
+
+void displayMessage(char* message);
+
 int getNumberFromBoard();
+
+enum difficulty getDifficulty();
