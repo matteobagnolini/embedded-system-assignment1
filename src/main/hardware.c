@@ -70,6 +70,8 @@ static void getBinaryNumber(char* bin) {
     Serial.println(bin);    // Stampa della stringa binaria per il logging
 }
 
+
+
 // This solution reuse too much code. We should think about
 // a better implementation (Note: we cant use args in this methods)
 static void changeLed1State() {

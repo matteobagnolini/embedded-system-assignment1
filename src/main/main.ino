@@ -20,7 +20,7 @@ int start_time;
 int scored;
 char buffer[50];
 
-enum FASE { SLEEP, PREPARATION, GAME, POINT_CHANGE, GAME_OVER } level;
+enum PHASE { SLEEP, PREPARATION, GAME, POINT_CHANGE, GAME_OVER } level;
 
 void setup() { reset(); }
 
@@ -33,6 +33,10 @@ void loop() {
             } else {
                 level = SLEEP;
                 started = false;
+                // Go to sleep until B1 is pressed, then change phase to GAME
+                // sleep_mode_on();
+                // sleep_mode_off();
+                // changeInterruptToStartGame();
             }
         case GAME:
             correct = getNumberFromBoard() == game_num;
