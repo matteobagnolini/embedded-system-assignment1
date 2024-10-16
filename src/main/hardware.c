@@ -1,8 +1,11 @@
 #include <math.h>
 #include <EnableInterrupt.h>
+#include <LiquidCrystal_I2C.h>
 #include "hardware.h"
 
 int ledStates[4] = {LOW, LOW, LOW, LOW};
+
+LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27, 20, 4);
 
 static void changeLedState();   // This method should be called when button's interrupt is raised
 static String getBinaryNumber();
@@ -12,6 +15,7 @@ void setupHardware() {
   pinMode(LED_PIN2, OUTPUT);
   pinMode(LED_PIN3, OUTPUT);
   pinMode(LED_PIN4, OUTPUT);
+  pinMode(REDLED_PIN, OUTPUT);
 
   pinMode(BUTTON_PIN1, INPUT);
   pinMode(BUTTON_PIN2, INPUT);
@@ -19,16 +23,32 @@ void setupHardware() {
   pinMode(BUTTON_PIN4, INPUT);
 
   Serial.begin(9600);   // for logging purpose
+  
+  // lcd initialisation
+  lcd.init();
+  lcd.backlight();
 
-  // Interrupt should be setupped here
-  enableInterrupt(BUTTON_PIN1, changeLedState, CHANGE);
+  // Interrupt setupped here
+  enableInterrupt(BUTTON_PIN1, changeLed1State, RISING);
+  enableInterrupt(BUTTON_PIN2, changeLed2State, RISING);
+  enableInterrupt(BUTTON_PIN3, changeLed3State, RISING);
+  enableInterrupt(BUTTON_PIN4, changeLed4State, RISING);
+}
 
+void blinkingLed() {
+  currIntensity = 0;
+  fadeAmount = 5;
+  analogWrite(LED_PIN, currIntensity);
+  currIntensity = currIntensity + fadeAmount;
+  if (currIntensity == 0 || currIntensity == 255) {
+    fadeAmount = -fadeAmount ;
+  }
+  delay(15);
 }
 
 void displayMessage(String msg) {
-  // msg should be printed to the LCD display
-  // For now we just print the msg on the serial line
-  Serial.println(msg);
+  lcd.clear();
+  lcd.print(msg);
 }
 
 int getNumberFromBoard() {
@@ -55,7 +75,6 @@ static void getBinaryNumber(char* bin) {
 static void changeLed1State() {
     ledState1 = ledState1 == HIGH ? LOW : HIGH;
     digitalWrite(PIN_LED, ledState1);
-
 }
 
 static void changeLed2State() {
