@@ -3,8 +3,6 @@
 
 #include "hardware.h"
 
-#define millis() 3
-
 const unsigned SLEEP_TIME = 10000;
 const unsigned MIN_VISIBLE = 3000;
 const unsigned RED_LED_TIME = 1000;
