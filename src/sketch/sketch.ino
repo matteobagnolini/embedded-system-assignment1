@@ -2,7 +2,6 @@
 #include <LiquidCrystal_I2C.h>
 #include <avr/sleep.h>
 #include <math.h>
-#include <stdlib.h>  //TODO ?
 
 const unsigned GAME_PINS = 4;
 
@@ -24,17 +23,13 @@ bool ledState3;
 bool ledState4;
 
 const unsigned SLEEP_TIME = 10000;
-const unsigned MIN_VISIBLE = 3000;
+const unsigned MIN_VISIBLE = 1500;
 const unsigned RED_LED_TIME = 1000;
 const unsigned T1 = 10000;
 
 int ledStates[4] = {LOW, LOW, LOW, LOW};
 
 LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27, 20, 4);
-
-static void changeLedState();  // This method should be called when button's
-                               // interrupt is raised
-static String getBinaryNumber();
 
 enum difficulty { EASY, MEDIUM, HARD, ABSURD };
 
@@ -44,21 +39,27 @@ int game_num;
 int score;
 bool correct;
 bool started;
+bool welcome;
 unsigned long start_time;
 int scored;
 char buffer[50];
 unsigned long currentMillis;
+const unsigned REBOUND_TIME = 100;
+unsigned long timePassed[4] = {0, 0, 0, 0};
+unsigned long lastFadeUpdate = 0;
+unsigned fadeInterval = 3;
 
-enum PHASE { SLEEP, PREPARATION, GAME, POINT_CHANGE, GAME_OVER } level;
+enum PHASE {
+    SLEEP,
+    PREPARATION,
+    STARTING,
+    GAME,
+    POINT_CHANGE,
+    GAME_OVER
+} level;
 
 int currIntensity;
-unsigned fadeAmount = 100;
-
-void button1fun() {
-    if (level != SLEEP) {
-        changeLed1State();
-    }
-};
+unsigned fadeAmount = 15;
 
 void setup() {
     setupHardware();
@@ -73,12 +74,13 @@ void loop() {
         case PREPARATION:
             Serial.println("Preparation");
             blinkingLed();
-            if (started == false && currentMillis - start_time < SLEEP_TIME) {
-                started = true;
+            if (welcome == false && currentMillis - start_time < SLEEP_TIME) {
+                Serial.println("1 qui");
+                welcome = true;
                 displayMessage("Welcome to GMB! Press B1 to Start");
             } else if (currentMillis - start_time > SLEEP_TIME) {
                 level = SLEEP;
-                started = false;
+                welcome = false;
                 set_sleep_mode(SLEEP_MODE_PWR_DOWN);
                 sleep_enable();
                 sleep_mode();
@@ -90,6 +92,12 @@ void loop() {
             break;
         case GAME:
             Serial.println("Game");
+            if (!started) {
+                snprintf(buffer, sizeof(buffer), "%d", game_num);
+                displayMessage(buffer);
+                Serial.println("2 qui");
+                started = true;
+            }
             correct = getNumberFromBoard() == game_num;
             if (correct) {
                 nextTurn();
@@ -97,6 +105,7 @@ void loop() {
                 start_time = currentMillis;
                 level = GAME_OVER;
                 redLedOn();
+                displayMessage("Time is Over");
             }
             break;
 
@@ -107,10 +116,12 @@ void loop() {
                 scored = false;
                 displayMessage("");
                 start_time = currentMillis;
+                started = false;
                 level = GAME;
             } else if (!scored && currentMillis - start_time > MIN_VISIBLE) {
+                Serial.println("ci entra?");
                 scored = true;
-                snprintf(buffer, sizeof(buffer), "%d", score);
+                snprintf(buffer, sizeof(buffer), "score: %d", score);
                 displayMessage(buffer);
             }
             break;
@@ -127,11 +138,27 @@ void loop() {
                 displayMessage(buffer);
             }
             break;
+
+        case STARTING:
+            Serial.println(currentMillis - start_time);
+            Serial.println(started);
+            if (!started && currentMillis - start_time < MIN_VISIBLE) {
+                Serial.println("sono dentro");
+                started = true;
+                displayMessage("!!! Go! !!!");
+            }
+            if (currentMillis - start_time > MIN_VISIBLE) {
+                start_time = currentMillis;
+                started = false;
+                level = GAME;
+            }
+            break;
     }
-    delay(500);
+    // delay(500);
 }
 
 void nextTurn() {
+    start_time = currentMillis;
     displayMessage("GOOD!!");
     correct = false;
     t = t * (1 - F);
@@ -147,6 +174,7 @@ void reset() {
     game_num = rand() % 16;
     scored = false;
     correct = false;
+    welcome = false;
     score = 0;
     displayMessage("");
     t = T1;
@@ -155,11 +183,15 @@ void reset() {
 }
 
 void starter() {
+    allLedOff();
     enum difficulty diff;
-    start_time = millis();
     diff = getDifficulty();
     F = adjustDifficulty(diff);
-    level = GAME;
+    Serial.println("0 qua");
+    started = false;
+    start_time = currentMillis;
+    Serial.println(F);
+    level = STARTING;
 }
 
 float adjustDifficulty(enum difficulty diff) {
@@ -209,13 +241,16 @@ void setupHardware() {
 }
 
 void blinkingLed() {
-    Serial.println("blinkingLed");
-    analogWrite(REDLED_PIN, currIntensity);
-    currIntensity = currIntensity + fadeAmount;
-    if (currIntensity == 0 || currIntensity == 255) {
-        fadeAmount = -fadeAmount;
+    if (currentMillis - lastFadeUpdate >= fadeInterval) {
+        Serial.println("fade");
+        Serial.println(currIntensity);
+        analogWrite(REDLED_PIN, currIntensity);
+        currIntensity += fadeAmount;
+        if (currIntensity == 0 || currIntensity == 255) {
+            fadeAmount = -fadeAmount;
+        }
+        lastFadeUpdate = currentMillis;
     }
-    delay(15);
 }
 
 void displayMessage(String msg) {
@@ -243,33 +278,27 @@ static void getBinaryNumber(char* bin) {
     Serial.println(bin);    // Stampa della stringa binaria per il logging
 }
 
-// This solution reuse too much code. We should think about
-// a better implementation (Note: we cant use args in this methods)
-static void changeLed1State() {
-    ledState1 = ledState1 == HIGH ? LOW : HIGH;
-    digitalWrite(LED_PIN1, ledState1);
+static void changeLed1State() { changeLedState(LED_PIN1, 0); }
+
+static void changeLedState(const unsigned PIN, int index) {
+    if (level == GAME) {
+        unsigned long currTime = millis();
+        if (currTime - timePassed[index] >= REBOUND_TIME) {
+            ledStates[index] = ledStates[index] == HIGH ? LOW : HIGH;
+            digitalWrite(PIN, ledStates[index]);
+            timePassed[index] = currTime;
+        }
+    }
 }
 
 static void changeLed2State() {
-    if (level == GAME) {
-        ledState2 = ledState2 == HIGH ? LOW : HIGH;
-        digitalWrite(LED_PIN2, ledState2);
-    }
+    Serial.println("hallo?");
+    changeLedState(LED_PIN2, 1);
 }
 
-static void changeLed3State() {
-    if (level == GAME) {
-        ledState3 = ledState3 == HIGH ? LOW : HIGH;
-        digitalWrite(LED_PIN3, ledState3);
-    }
-}
+static void changeLed3State() { changeLedState(LED_PIN3, 2); }
 
-static void changeLed4State() {
-    if (level == GAME) {
-        ledState4 = ledState4 == HIGH ? LOW : HIGH;
-        digitalWrite(LED_PIN4, ledState4);
-    }
-}
+static void changeLed4State() { changeLedState(LED_PIN4, 3); }
 
 static void redLedOn() { digitalWrite(REDLED_PIN, HIGH); }
 
@@ -277,9 +306,13 @@ static void redLedOff() { digitalWrite(REDLED_PIN, LOW); }
 
 static void allLedOff() {
     digitalWrite(LED_PIN1, LOW);
+    ledStates[0] = LOW;
     digitalWrite(LED_PIN2, LOW);
+    ledStates[1] = LOW;
     digitalWrite(LED_PIN3, LOW);
+    ledStates[2] = LOW;
     digitalWrite(LED_PIN4, LOW);
+    ledStates[3] = LOW;
     digitalWrite(REDLED_PIN, LOW);
 }
 
@@ -296,11 +329,13 @@ static enum difficulty getDifficulty() {
 }
 
 static void b1Pressed() {
-    if (level == GAME) {
-        changeLed1State();
-    } else if (level == PREPARATION) {
+    Serial.println("b1Pressed");
+    Serial.println(level == STARTING);
+    if (level == PREPARATION || level == STARTING) {
+        Serial.println("hallo?");
         starter();
     } else if (level == SLEEP) {
         sleep_disable();
     }
+    changeLed1State();
 }
