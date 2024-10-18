@@ -1,5 +1,6 @@
 #include <avr/sleep.h>
 #include "hardware.h"
+#include "enumPhase.h"
 
 const unsigned SLEEP_TIME = 10000;
 const unsigned MIN_VISIBLE = 1500;
@@ -20,14 +21,7 @@ unsigned long currentMillis;
 unsigned long lastFadeUpdate = 0;
 unsigned fadeInterval = 3;
 
-enum PHASE {
-    SLEEP,
-    PREPARATION,
-    STARTING,
-    GAME,
-    POINT_CHANGE,
-    GAME_OVER
-} level;
+enum PHASE level;
 
 void setup() {
     setupHardware();

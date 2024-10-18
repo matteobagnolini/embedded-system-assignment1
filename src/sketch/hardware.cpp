@@ -2,6 +2,7 @@
 #include <LiquidCrystal_I2C.h>
 #include <math.h>
 #include "hardware.h"
+#include "enumPhase.h"
 
 int ledStates[4] = {LOW, LOW, LOW, LOW};
 unsigned long timePassed[4] = {0, 0, 0, 0};
