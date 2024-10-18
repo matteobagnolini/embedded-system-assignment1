@@ -63,7 +63,7 @@ void displayMessage(String msg) {
 
 int getNumberFromBoard() {
     int num = 0;
-    for (int i = 0; i < GAME_PINS; i++) {
+    for (int i = 0; i < GAME_LEDS; i++) {
         num += ledStates[4 - i - 1] * (1 << i);
     }
     return num;

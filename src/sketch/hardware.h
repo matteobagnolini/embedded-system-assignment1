@@ -1,4 +1,4 @@
-#define GAME_PINS 4
+#define GAME_LEDS 4
 
 const unsigned LED_PIN1 = 13;
 const unsigned LED_PIN2 = 3;
