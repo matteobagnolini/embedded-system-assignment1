@@ -23,7 +23,7 @@ void redLedOn();
 void redLedOff();
 void allLedOff();
 
-void displayMessage(char* message);
+void displayMessage(String message);
 
 int getNumberFromBoard();
 
