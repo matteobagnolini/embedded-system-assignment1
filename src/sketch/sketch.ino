@@ -2,10 +2,10 @@
 #include "hardware.h"
 #include "enumPhase.h"
 
-const unsigned SLEEP_TIME = 10000;
-const unsigned MIN_VISIBLE = 1500;
-const unsigned RED_LED_TIME = 1000;
-const unsigned T1 = 10000;
+#define SLEEP_TIME 10000
+#define MIN_VISIBLE 1500
+#define RED_LED_TIME 100
+#define T1 10000
 
 float F = 0;
 int t;
@@ -27,7 +27,6 @@ void setup() {
     setupHardware();
     reset();
     Serial.begin(9600);
-    // attachInterrupt(digitalPinToInterrupt(BUTTON_PIN1), button1fun, RISING);
 }
 
 void loop() {

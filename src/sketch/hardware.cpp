@@ -4,13 +4,15 @@
 #include "hardware.h"
 #include "enumPhase.h"
 
-int ledStates[4] = {LOW, LOW, LOW, LOW};
+int ledStates[] = {LOW, LOW, LOW, LOW};
 unsigned long timePassed[4] = {0, 0, 0, 0};
 
 LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27, 20, 4);
 
 int fadingLedCurrIntensity = 0;
 int fadeAmount = 5;
+
+extern enum PHASE level;
 
 static void changeLed1State();
 static void changeLed2State();
