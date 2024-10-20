@@ -33,7 +33,6 @@ void loop() {
     currentMillis = millis();
     switch (level) {
         case PREPARATION:
-            Serial.println("Preparation");
             fadingLed();
             if (welcome == false && currentMillis - start_time < SLEEP_TIME) {
                 welcome = true;
@@ -44,18 +43,21 @@ void loop() {
                 set_sleep_mode(SLEEP_MODE_PWR_DOWN);
                 sleep_enable();
                 sleep_mode();
-                Serial.println("fuori Sleep");
                 /* First thing to do is disable sleep. */
                 sleep_disable();
                 level = PREPARATION;
             }
+            if (canStart()) {
+                Serial.println("Ho startato");
+                setCanStart(false);
+                starter();
+            }
+
             break;
         case GAME:
-            Serial.println("Game");
             if (!started) {
                 snprintf(buffer, sizeof(buffer), "%d", game_num);
                 displayMessage(buffer);
-                Serial.println("2 qui");
                 started = true;
             }
             correct = getNumberFromBoard() == game_num;
@@ -70,8 +72,6 @@ void loop() {
             break;
 
         case POINT_CHANGE:
-            Serial.println("POINT_CHANGE");
-
             if (currentMillis - start_time > 2 * MIN_VISIBLE) {
                 scored = false;
                 displayMessage("");
@@ -79,7 +79,6 @@ void loop() {
                 started = false;
                 level = GAME;
             } else if (!scored && currentMillis - start_time > MIN_VISIBLE) {
-                Serial.println("ci entra?");
                 scored = true;
                 snprintf(buffer, sizeof(buffer), "score: %d", score);
                 displayMessage(buffer);
@@ -87,11 +86,11 @@ void loop() {
             break;
 
         case GAME_OVER:
-            Serial.println("GameJover");
             if (currentMillis - start_time > SLEEP_TIME) {
                 reset();
             } else if (!scored && currentMillis - start_time > RED_LED_TIME) {
                 scored = true;
+                setCanStart(false);
                 redLedOff();
                 snprintf(buffer, sizeof(buffer), "Game Over - Final Score %d",
                          score);
@@ -100,10 +99,7 @@ void loop() {
             break;
 
         case STARTING:
-            Serial.println(currentMillis - start_time);
-            Serial.println(started);
             if (!started && currentMillis - start_time < MIN_VISIBLE) {
-                Serial.println("sono dentro");
                 started = true;
                 displayMessage("!!! Go! !!!");
             }
@@ -114,13 +110,10 @@ void loop() {
             }
             break;
     }
-    if (canStart()) {
-        starter();
-        setCanStart(false);
-    }
 }
 
 void nextTurn() {
+  Serial.println("Chiamato nextTurn()");
     start_time = currentMillis;
     displayMessage("GOOD!!");
     correct = false;
@@ -132,7 +125,7 @@ void nextTurn() {
 }
 
 void reset() {
-    Serial.println("reset fun");
+    Serial.println("Chiamato reset()");
     level = PREPARATION;
     game_num = rand() % 16;
     scored = false;
@@ -146,6 +139,7 @@ void reset() {
 }
 
 void starter() {
+  Serial.println("Chiamato starter()");
     allLedOff();
     enum difficulty diff;
     diff = getDifficulty();
