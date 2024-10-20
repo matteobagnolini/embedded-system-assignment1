@@ -20,6 +20,7 @@ static void changeLed3State();
 static void changeLed4State();
 static void b1Pressed();
 
+bool canStart = false;
 
 void setupHardware() {
     pinMode(LED_PIN1, OUTPUT);
@@ -122,7 +123,15 @@ void redLedOff() {
 
 static void b1Pressed() {
     if (level == PREPARATION || level == STARTING) {
-        starter();
+        canStart = true;
     } else if (level == SLEEP) { } // Wakes up Arduino
     changeLed1State();
+}
+
+bool canStart() {
+    return canStart;
+}
+
+void setCanStart(bool value) {
+    canStart = value;
 }

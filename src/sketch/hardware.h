@@ -28,3 +28,7 @@ void displayMessage(String message);
 int getNumberFromBoard();
 
 enum difficulty getDifficulty();
+
+bool canStart();
+
+void setCanStart(bool value);

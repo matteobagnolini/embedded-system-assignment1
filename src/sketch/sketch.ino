@@ -114,6 +114,10 @@ void loop() {
             }
             break;
     }
+    if (canStart()) {
+        starter();
+        setCanStart(false);
+    }
 }
 
 void nextTurn() {
