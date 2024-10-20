@@ -123,8 +123,6 @@ void redLedOff() {
 static void b1Pressed() {
     if (level == PREPARATION || level == STARTING) {
         starter();
-    } else if (level == SLEEP) {
-        sleep_disable();
-    }
+    } else if (level == SLEEP) { } // Wakes up Arduino
     changeLed1State();
 }

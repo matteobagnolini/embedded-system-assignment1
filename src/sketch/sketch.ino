@@ -46,7 +46,7 @@ void loop() {
                 sleep_mode();
                 Serial.println("fuori Sleep");
                 /* First thing to do is disable sleep. */
-                // sleep_disable();
+                sleep_disable();
                 level = PREPARATION;
             }
             break;
