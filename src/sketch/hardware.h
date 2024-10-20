@@ -12,7 +12,7 @@ const unsigned BUTTON_PIN2 = 12;
 const unsigned BUTTON_PIN3 = 11;
 const unsigned BUTTON_PIN4 = 10;
 
-const unsigned REBOUND_TIME = 100;
+const unsigned REBOUND_TIME = 150;
 
 enum difficulty { EASY, MEDIUM, HARD, ABSURD };
 

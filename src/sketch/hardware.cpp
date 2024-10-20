@@ -20,7 +20,7 @@ static void changeLed3State();
 static void changeLed4State();
 static void b1Pressed();
 
-bool canStart = false;
+bool canStartGame = false;
 
 void setupHardware() {
     pinMode(LED_PIN1, OUTPUT);
@@ -102,15 +102,25 @@ void allLedOff() {
 }
 
 enum difficulty getDifficulty() {
-    int sensorValue = analogRead(A0);
-    if (sensorValue <= 66)
-        return EASY;
-    else if (sensorValue <= 132)
-        return MEDIUM;
-    else if (sensorValue <= 198)
-        return HARD;
-    else
-        return ABSURD;
+    int sensorValue = map(analogRead(A0), 0, 1023, 0, 255);
+    Serial.print("Sensore difficoltà: ");
+    Serial.println(sensorValue);
+    if (sensorValue <= 66) {
+      Serial.println("Selected EASY");
+      return EASY;
+    }
+    else if (sensorValue <= 132) {
+        Serial.println("Selected MEDIUM");
+        return MEDIUM; 
+    }
+    else if (sensorValue <= 198) {
+      Serial.println("Selected HARD");
+      return HARD;
+    }
+    else {
+      Serial.println("Selected ABSURD");
+      return ABSURD;
+    }
 }
 
 void redLedOn() {
@@ -123,15 +133,15 @@ void redLedOff() {
 
 static void b1Pressed() {
     if (level == PREPARATION || level == STARTING) {
-        canStart = true;
+        canStartGame = true;
     } else if (level == SLEEP) { } // Wakes up Arduino
-    changeLed1State();
+    changeLedState(LED_PIN1, 0);
 }
 
 bool canStart() {
-    return canStart;
+    return canStartGame;
 }
 
 void setCanStart(bool value) {
-    canStart = value;
+    canStartGame = value;
 }
