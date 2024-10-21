@@ -103,24 +103,17 @@ void allLedOff() {
 
 enum difficulty getDifficulty() {
     int sensorValue = map(analogRead(A0), 0, 1023, 0, 255);
-    Serial.print("Sensore difficoltà: ");
-    Serial.println(sensorValue);
-    if (sensorValue <= 66) {
-      Serial.println("Selected EASY");
+    if (sensorValue <= 66)
       return EASY;
-    }
-    else if (sensorValue <= 132) {
-        Serial.println("Selected MEDIUM");
+
+    else if (sensorValue <= 132) 
         return MEDIUM; 
-    }
-    else if (sensorValue <= 198) {
-      Serial.println("Selected HARD");
+
+    else if (sensorValue <= 198)
       return HARD;
-    }
-    else {
-      Serial.println("Selected ABSURD");
+
+    else
       return ABSURD;
-    }
 }
 
 void redLedOn() {

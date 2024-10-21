@@ -50,7 +50,6 @@ void loop() {
                 level = PREPARATION;
             }
             if (canStart()) {
-                Serial.println("Ho startato");
                 setCanStart(false);
                 starter();
             }
@@ -115,7 +114,6 @@ void loop() {
 }
 
 void nextTurn() {
-  Serial.println("Chiamato nextTurn()");
     start_time = currentMillis;
     displayMessage("GOOD!!");
     correct = false;
@@ -127,7 +125,6 @@ void nextTurn() {
 }
 
 void reset() {
-    Serial.println("Chiamato reset()");
     level = PREPARATION;
     game_num = rand() % 16;
     scored = false;
@@ -141,7 +138,6 @@ void reset() {
 }
 
 void starter() {
-  Serial.println("Chiamato starter()");
     allLedOff();
     enum difficulty diff;
     diff = getDifficulty();
