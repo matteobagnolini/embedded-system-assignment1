@@ -7,7 +7,7 @@
 
 #define SLEEP_TIME 10000
 #define MIN_VISIBLE 1500
-#define RED_LED_TIME 100
+#define RED_LED_GAME_OVER_TIME 1000
 #define T1 10000
 
 float F = 0;
@@ -90,7 +90,7 @@ void loop() {
         case GAME_OVER:
             if (currentMillis - start_time > SLEEP_TIME) {
                 reset();
-            } else if (!scored && currentMillis - start_time > RED_LED_TIME) {
+            } else if (!scored && currentMillis - start_time > RED_LED_GAME_OVER_TIME) {
                 scored = true;
                 setCanStart(false);
                 redLedOff();
