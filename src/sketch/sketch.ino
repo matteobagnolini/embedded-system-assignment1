@@ -1,4 +1,5 @@
 #include <avr/sleep.h>
+#include <time.h>
 #include "hardware.h"
 #include "enumPhase.h"
 
@@ -26,6 +27,7 @@ enum PHASE level;
 void setup() {
     setupHardware();
     reset();
+    srand(time(NULL));  // Initialize the seed
     Serial.begin(9600);
 }
 
