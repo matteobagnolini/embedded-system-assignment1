@@ -3,6 +3,8 @@
 #include "hardware.h"
 #include "enumPhase.h"
 
+//21/10/24 15:04
+
 #define SLEEP_TIME 10000
 #define MIN_VISIBLE 1500
 #define RED_LED_TIME 100
@@ -19,8 +21,6 @@ unsigned long start_time;
 int scored;
 char buffer[50];
 unsigned long currentMillis;
-unsigned long lastFadeUpdate = 0;
-unsigned fadeInterval = 3;
 
 enum PHASE level;
 
@@ -32,10 +32,11 @@ void setup() {
 }
 
 void loop() {
+    //Serial.println("VA");
     currentMillis = millis();
     switch (level) {
         case PREPARATION:
-            fadingLed();
+            fadingLed(currentMillis);
             if (welcome == false && currentMillis - start_time < SLEEP_TIME) {
                 welcome = true;
                 displayMessage("Welcome to GMB! Press B1 to Start");
@@ -47,6 +48,8 @@ void loop() {
                 sleep_mode();
                 /* First thing to do is disable sleep. */
                 sleep_disable();
+                currentMillis = millis();
+                start_time = currentMillis;
                 level = PREPARATION;
             }
             if (canStart()) {

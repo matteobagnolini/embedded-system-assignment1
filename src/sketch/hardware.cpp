@@ -11,6 +11,8 @@ LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27, 20, 4);
 
 int fadingLedCurrIntensity = 0;
 int fadeAmount = 5;
+unsigned long lastFadeUpdate = 0;
+unsigned fadeInterval = 7;
 
 extern enum PHASE level;
 
@@ -34,7 +36,7 @@ void setupHardware() {
     pinMode(BUTTON_PIN3, INPUT);
     pinMode(BUTTON_PIN4, INPUT);
 
-    Serial.begin(9600);  // for logging purpose
+    //Serial.begin(9600);  // for logging purpose
 
     // lcd initialisation
     lcd.init();
@@ -48,11 +50,14 @@ void setupHardware() {
     enableInterrupt(BUTTON_PIN4, changeLed4State, RISING);
 }
 
-void fadingLed() {
-    analogWrite(REDLED_PIN, fadingLedCurrIntensity);
-    fadingLedCurrIntensity += fadeAmount;
-    if (fadingLedCurrIntensity == 0 || fadingLedCurrIntensity == 255) {
-      fadeAmount = -fadeAmount;
+void fadingLed(unsigned long currentMillis) {
+    if (currentMillis - lastFadeUpdate >= fadeInterval) {
+        analogWrite(REDLED_PIN, fadingLedCurrIntensity);
+        fadingLedCurrIntensity += fadeAmount;
+        if (fadingLedCurrIntensity == 0 || fadingLedCurrIntensity == 255) {
+            fadeAmount = -fadeAmount;
+        }
+        lastFadeUpdate = currentMillis;
     }
 }
 
@@ -127,7 +132,7 @@ void redLedOff() {
 static void b1Pressed() {
     if (level == PREPARATION || level == STARTING) {
         canStartGame = true;
-    } else if (level == SLEEP) { } // Wakes up Arduino
+    } //else if (level == SLEEP) { } // Wakes up Arduino
     changeLedState(LED_PIN1, 0);
 }
 

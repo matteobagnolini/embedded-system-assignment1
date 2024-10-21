@@ -18,7 +18,7 @@ enum difficulty { EASY, MEDIUM, HARD, ABSURD };
 
 void setupHardware();
 
-void fadingLed();
+void fadingLed(unsigned long currentMillis);
 void redLedOn();
 void redLedOff();
 void allLedOff();
