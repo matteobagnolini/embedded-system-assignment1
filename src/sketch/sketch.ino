@@ -32,7 +32,6 @@ void setup() {
 }
 
 void loop() {
-    //Serial.println("VA");
     currentMillis = millis();
     switch (level) {
         case PREPARATION:
@@ -46,7 +45,6 @@ void loop() {
                 set_sleep_mode(SLEEP_MODE_PWR_DOWN);
                 sleep_enable();
                 sleep_mode();
-                /* First thing to do is disable sleep. */
                 sleep_disable();
                 currentMillis = millis();
                 start_time = currentMillis;

@@ -36,8 +36,6 @@ void setupHardware() {
     pinMode(BUTTON_PIN3, INPUT);
     pinMode(BUTTON_PIN4, INPUT);
 
-    //Serial.begin(9600);  // for logging purpose
-
     // lcd initialisation
     lcd.init();
     lcd.backlight();
@@ -132,7 +130,7 @@ void redLedOff() {
 static void b1Pressed() {
     if (level == PREPARATION || level == STARTING) {
         canStartGame = true;
-    } //else if (level == SLEEP) { } // Wakes up Arduino
+    }
     changeLedState(LED_PIN1, 0);
 }
 
