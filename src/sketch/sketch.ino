@@ -126,6 +126,7 @@ void nextTurn() {
 }
 
 void reset() {
+    allLedOff();
     level = PREPARATION;
     game_num = rand() % 16;
     scored = false;
